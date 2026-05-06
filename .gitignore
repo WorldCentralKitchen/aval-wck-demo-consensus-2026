@@ -2,12 +2,17 @@
 node_modules/
 .pnp
 .pnp.js
+.pnpm-store/
 
 # Build outputs
 dist/
 build/
 .next/
 out/
+*.tsbuildinfo
+
+# Test outputs
+coverage/
 
 # Environment variables
 .env
@@ -18,6 +23,7 @@ out/
 .aws-sam/
 cdk.out/
 samconfig.toml
+.cdk.staging/
 
 # Logs
 *.log
@@ -35,3 +41,7 @@ Thumbs.db
 
 # Misc
 archive/
+
+# Operational artifacts (regenerable)
+packages/schemas/src/uids.generated.ts
+scripts/.runs/

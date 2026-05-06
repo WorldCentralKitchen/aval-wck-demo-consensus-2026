@@ -1,0 +1,30 @@
+{
+  "name": "aval-wck-demo",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Aval — credential and agent-native infrastructure for World Central Kitchen. EasyA × Consensus Miami 2026.",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "dev:kyc": "pnpm --filter @aval/kyc-console dev",
+    "dev:portal": "pnpm --filter @aval/vendor-portal dev",
+    "dev:pos": "pnpm --filter @aval/vendor-pos dev",
+    "dev:field": "pnpm --filter @aval/field-app dev",
+    "dev:trainer": "pnpm --filter @aval/trainer-app dev",
+    "infra:synth": "pnpm --filter @aval/infra synth",
+    "infra:diff": "pnpm --filter @aval/infra diff",
+    "infra:deploy": "pnpm --filter @aval/infra deploy"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "typescript": "^5.6.3"
+  }
+}

@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    @apply bg-wck-seafoam-100 text-wck-ink antialiased;
+    font-feature-settings: "ss01", "cv11";
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-semibold tracking-tight;
+  }
+}
+
+@layer components {
+  .aval-card {
+    @apply bg-white rounded-2xl shadow-card p-6 border border-white/40;
+  }
+  .aval-btn-primary {
+    @apply inline-flex items-center justify-center rounded-xl bg-wck-blueberry px-5 py-3 text-sm font-medium text-white transition hover:bg-wck-blueberry-600 focus:outline-none focus-visible:shadow-focus disabled:opacity-50;
+  }
+  .aval-btn-accent {
+    @apply inline-flex items-center justify-center rounded-xl bg-wck-saffron px-5 py-3 text-sm font-medium text-white transition hover:bg-wck-saffron-600 focus:outline-none focus-visible:shadow-focus disabled:opacity-50;
+  }
+  .aval-btn-ghost {
+    @apply inline-flex items-center justify-center rounded-xl border border-wck-blueberry/30 px-5 py-3 text-sm font-medium text-wck-blueberry transition hover:bg-wck-seafoam-100 focus:outline-none focus-visible:shadow-focus;
+  }
+  .aval-pill {
+    @apply inline-flex items-center rounded-full bg-wck-seafoam-200 px-3 py-1 text-xs font-medium text-wck-blueberry-700;
+  }
+}

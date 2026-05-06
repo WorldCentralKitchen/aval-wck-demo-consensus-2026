@@ -17,4 +17,5 @@
 
 ## Technical Design Documents
 
-* [TDD Index](tdd/README.md)
+* [TDD Index](tdds/README.md)
+    * [Phase 0a — Repo bootstrap](tdds/0a-repo-bootstrap.md)
