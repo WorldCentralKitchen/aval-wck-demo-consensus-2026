@@ -10,7 +10,9 @@
     "fund-status": "tsx src/fund-status.ts"
   },
   "dependencies": {
-    "@aval/schemas": "workspace:*"
+    "@aval/schemas": "workspace:*",
+    "dotenv": "^16.4.5",
+    "viem": "^2.21.40"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",

@@ -13,7 +13,7 @@ way it is.
 | Phase | Subphase | TDD |
 |-------|----------|-----|
 | 0 | a — Repo bootstrap | [0a-repo-bootstrap.md](./0a-repo-bootstrap.md) |
-| 0 | b — Pre-provisioning scripts | (pending) |
+| 0 | b — Pre-provisioning scripts | [0b-pre-provisioning-scripts.md](./0b-pre-provisioning-scripts.md) |
 | 0 | c — External account setup (USER) | (pending) |
 | 1 | a — EAS schemas + attest helpers | (pending) |
 | 1 | b — Backend Lambdas | (pending) |
