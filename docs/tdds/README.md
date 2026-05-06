@@ -15,7 +15,7 @@ way it is.
 | 0 | a — Repo bootstrap | [0a-repo-bootstrap.md](./0a-repo-bootstrap.md) |
 | 0 | b — Pre-provisioning scripts | [0b-pre-provisioning-scripts.md](./0b-pre-provisioning-scripts.md) |
 | 0 | c — External account setup (USER) | (pending) |
-| 1 | a — EAS schemas + attest helpers | (pending) |
+| 1 | a — EAS schemas + attest helpers | [1a-eas-schemas-attest-helpers.md](./1a-eas-schemas-attest-helpers.md) |
 | 1 | b — Backend Lambdas | (pending) |
 | 1 | c — Frontend scaffold | (pending) |
 | 1 | d — Vertical slice integration | (pending) |

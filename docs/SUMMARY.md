@@ -20,3 +20,4 @@
 * [TDD Index](tdds/README.md)
     * [Phase 0a — Repo bootstrap](tdds/0a-repo-bootstrap.md)
     * [Phase 0b — Pre-provisioning scripts](tdds/0b-pre-provisioning-scripts.md)
+    * [Phase 1a — EAS schemas + attest helpers](tdds/1a-eas-schemas-attest-helpers.md)

@@ -16,7 +16,9 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@aval/schemas": "workspace:*"
+    "@aval/schemas": "workspace:*",
+    "@coinbase/coinbase-sdk": "^0.25.0",
+    "viem": "^2.21.40"
   },
   "devDependencies": {
     "typescript": "^5.6.3"
