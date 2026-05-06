@@ -1,7 +1,7 @@
 /**
  * EAS attestation helpers for Base Sepolia.
  *
- * All write functions read ISSUER_PRIVATE_KEY from process.env.
+ * All write functions read EAS_ISSUER_PRIVATE_KEY from process.env.
  * All functions use BASE_SEPOLIA_RPC_URL if set, otherwise the public endpoint.
  *
  * No EAS SDK dependency — viem handles the contract calls directly, consistent
@@ -136,8 +136,8 @@ function makePublicClient() {
 }
 
 function makeIssuerClients() {
-  const raw = process.env["ISSUER_PRIVATE_KEY"];
-  if (!raw) throw new Error("ISSUER_PRIVATE_KEY is not set");
+  const raw = process.env["EAS_ISSUER_PRIVATE_KEY"];
+  if (!raw) throw new Error("EAS_ISSUER_PRIVATE_KEY is not set");
   const key = (raw.startsWith("0x") ? raw : `0x${raw}`) as Hex;
   const account = privateKeyToAccount(key);
   const transport = http(rpcUrl());
@@ -150,7 +150,7 @@ function makeIssuerClients() {
 
 /**
  * Issues an EAS attestation. Returns the attestation UID (bytes32).
- * Requires ISSUER_PRIVATE_KEY in process.env.
+ * Requires EAS_ISSUER_PRIVATE_KEY in process.env.
  */
 export async function attest(params: {
   schemaUid: Hex;
