@@ -1,0 +1,21 @@
+{
+  "name": "@aval/lambda-handlers",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@aval/schemas": "workspace:*",
+    "@aval/sdk": "workspace:*",
+    "@aws-sdk/client-dynamodb": "^3",
+    "@aws-sdk/client-rekognition": "^3",
+    "@aws-sdk/lib-dynamodb": "^3"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.145",
+    "@types/node": "^20.14.0",
+    "typescript": "^5.6.3"
+  }
+}

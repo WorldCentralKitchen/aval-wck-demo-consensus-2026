@@ -16,7 +16,7 @@ way it is.
 | 0 | b — Pre-provisioning scripts | [0b-pre-provisioning-scripts.md](./0b-pre-provisioning-scripts.md) |
 | 0 | c — External account setup (USER) | (pending) |
 | 1 | a — EAS schemas + attest helpers | [1a-eas-schemas-attest-helpers.md](./1a-eas-schemas-attest-helpers.md) |
-| 1 | b — Backend Lambdas | (pending) |
+| 1 | b — Backend Lambdas | [1b-backend-lambdas.md](./1b-backend-lambdas.md) |
 | 1 | c — Frontend scaffold | (pending) |
 | 1 | d — Vertical slice integration | (pending) |
 | 2 | a — Bedrock Agent + action group | (pending) |
