@@ -294,6 +294,9 @@ importers:
       '@aval/schemas':
         specifier: workspace:*
         version: link:../packages/schemas
+      '@coinbase/coinbase-sdk':
+        specifier: ^0.25.0
+        version: 0.25.0(typescript@5.9.3)
       dotenv:
         specifier: ^16.4.5
         version: 16.6.1

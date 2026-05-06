@@ -7,10 +7,12 @@
     "typecheck": "tsc --noEmit",
     "register-schemas": "tsx src/register-schemas.ts",
     "create-wallets": "tsx src/create-wallets.ts",
-    "fund-status": "tsx src/fund-status.ts"
+    "fund-status": "tsx src/fund-status.ts",
+    "test-cdp": "tsx src/test-cdp.ts"
   },
   "dependencies": {
     "@aval/schemas": "workspace:*",
+    "@coinbase/coinbase-sdk": "^0.25.0",
     "dotenv": "^16.4.5",
     "viem": "^2.21.40"
   },

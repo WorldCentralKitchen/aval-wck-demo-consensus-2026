@@ -56,13 +56,17 @@ function usdcAddress(): `0x${string}` {
 }
 
 function initCdp(): void {
-  const keyName = process.env["CDP_API_KEY_NAME"];
+  // CDP uses the key UUID (CDP_API_KEY_ID) as the JWT kid, not the display name.
+  const apiKeyName =
+    process.env["CDP_API_KEY_ID"] ?? process.env["CDP_API_KEY_NAME"];
   const privateKey = process.env["CDP_API_KEY_PRIVATE_KEY"];
-  if (!keyName || !privateKey) {
-    throw new Error("CDP_API_KEY_NAME and CDP_API_KEY_PRIVATE_KEY must be set");
+  if (!apiKeyName || !privateKey) {
+    throw new Error(
+      "CDP_API_KEY_ID (or CDP_API_KEY_NAME) and CDP_API_KEY_PRIVATE_KEY must be set",
+    );
   }
   Coinbase.configure({
-    apiKeyName: keyName,
+    apiKeyName,
     privateKey: privateKey.replace(/\\n/g, "\n"),
   });
 }
