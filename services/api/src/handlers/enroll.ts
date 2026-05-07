@@ -10,6 +10,11 @@ import { faceKey, putItem, recipientKey } from "../lib/db.js";
 const rek = new RekognitionClient({});
 const COLLECTION = process.env["REKOG_COLLECTION_NAME"] ?? "aval-recipients-demo";
 
+const CORS = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*",
+};
+
 async function ensureCollection(): Promise<void> {
   try {
     await rek.send(new CreateCollectionCommand({ CollectionId: COLLECTION }));
@@ -28,6 +33,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     if (!body.activationId || !body.base64Image) {
       return {
         statusCode: 400,
+        headers: CORS,
         body: JSON.stringify({ error: "activationId and base64Image are required" }),
       };
     }
@@ -53,6 +59,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     if (!faceId) {
       return {
         statusCode: 422,
+        headers: CORS,
         body: JSON.stringify({ error: "No face detected in image" }),
       };
     }
@@ -78,10 +85,11 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     return {
       statusCode: 200,
+      headers: CORS,
       body: JSON.stringify({ anonRecipientId, enrolledAt: now }),
     };
   } catch (e) {
     console.error("enroll error", e);
-    return { statusCode: 500, body: JSON.stringify({ error: "Internal error" }) };
+    return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: "Internal error" }) };
   }
 };

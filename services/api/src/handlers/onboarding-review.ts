@@ -9,6 +9,11 @@ const AGENT_ID = process.env["BEDROCK_AGENT_ID"];
 // Inference profile for Claude Sonnet 4.6 (required for Claude 4.x on Bedrock)
 const BEDROCK_MODEL = "us.anthropic.claude-sonnet-4-6";
 
+const CORS = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*",
+};
+
 const SYSTEM_PROMPT = `You are an onboarding document reviewer for World Central Kitchen (WCK).
 When given vendor onboarding information, review it for completeness and flag any issues.
 Always respond with a valid JSON object and nothing else:
@@ -93,6 +98,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     if (!body.vendorId) {
       return {
         statusCode: 400,
+        headers: CORS,
         body: JSON.stringify({ error: "vendorId is required" }),
       };
     }
@@ -146,10 +152,11 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     return {
       statusCode: 200,
+      headers: CORS,
       body: JSON.stringify(packet),
     };
   } catch (e) {
     console.error("onboarding-review error", e);
-    return { statusCode: 500, body: JSON.stringify({ error: "Internal error" }) };
+    return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: "Internal error" }) };
   }
 };

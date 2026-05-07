@@ -29,6 +29,11 @@ const ITEM_USDC: Record<string, bigint> = {
   snack: 2_000_000n,  // $2.00
 };
 
+const CORS = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*",
+};
+
 async function disburse(
   to: `0x${string}`,
   amount: bigint,
@@ -63,6 +68,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     if (!body.activationId) {
       return {
         statusCode: 400,
+        headers: CORS,
         body: JSON.stringify({ error: "activationId is required" }),
       };
     }
@@ -116,6 +122,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     return {
       statusCode: 200,
+      headers: CORS,
       body: JSON.stringify({
         activationId: body.activationId,
         settlements,
@@ -126,6 +133,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     };
   } catch (e) {
     console.error("settle error", e);
-    return { statusCode: 500, body: JSON.stringify({ error: "Internal error" }) };
+    return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: "Internal error" }) };
   }
 };

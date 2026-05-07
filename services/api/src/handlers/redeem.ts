@@ -16,6 +16,11 @@ const rek = new RekognitionClient({});
 const COLLECTION = process.env["REKOG_COLLECTION_NAME"] ?? "aval-recipients-demo";
 const CONFIDENCE_THRESHOLD = 90;
 
+const CORS = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*",
+};
+
 function todayUtc(): string {
   return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
 }
@@ -32,6 +37,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     if (!body.vendorAddress || !body.activationId || !body.base64Image) {
       return {
         statusCode: 400,
+        headers: CORS,
         body: JSON.stringify({
           error: "vendorAddress, activationId, and base64Image are required",
         }),
@@ -58,13 +64,13 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const faceId = topMatch?.Face?.FaceId;
 
     if (!faceId || confidence < CONFIDENCE_THRESHOLD) {
-      return { statusCode: 200, body: JSON.stringify({ matched: false }) };
+      return { statusCode: 200, headers: CORS, body: JSON.stringify({ matched: false }) };
     }
 
     const { PK, SK } = faceKey(faceId);
     const faceRecord = await getItem(PK, SK);
     if (!faceRecord) {
-      return { statusCode: 200, body: JSON.stringify({ matched: false }) };
+      return { statusCode: 200, headers: CORS, body: JSON.stringify({ matched: false }) };
     }
 
     const anonRecipientId = faceRecord["anonRecipientId"] as string;
@@ -84,6 +90,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     if (!allowed) {
       return {
         statusCode: 200,
+        headers: CORS,
         body: JSON.stringify({
           matched: true,
           denied: true,
@@ -107,6 +114,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     return {
       statusCode: 200,
+      headers: CORS,
       body: JSON.stringify({
         matched: true,
         denied: false,
@@ -117,6 +125,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     };
   } catch (e) {
     console.error("redeem error", e);
-    return { statusCode: 500, body: JSON.stringify({ error: "Internal error" }) };
+    return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: "Internal error" }) };
   }
 };
