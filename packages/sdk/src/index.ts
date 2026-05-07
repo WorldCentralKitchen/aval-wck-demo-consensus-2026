@@ -14,3 +14,19 @@ export * from "@aval/schemas";
 export * as eas from "./eas.js";
 export * as cdp from "./cdp.js";
 export * as api from "./api.js";
+// Direct exports for browser apps
+export { createAvalClient } from "./api.js";
+export type {
+  AvalApiClient,
+  EnrollParams,
+  EnrollResult,
+  RedeemParams,
+  RedeemResult,
+  AttestIssueParams,
+  AttestIssueResult,
+  AttestVerifyResult,
+  SettleParams,
+  SettleResult,
+  OnboardingReviewParams,
+  OnboardingReviewResult,
+} from "./api.js";

@@ -1,5 +1,10 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
+import {
+  DynamoDBDocumentClient,
+  GetCommand,
+  PutCommand,
+  QueryCommand,
+} from "@aws-sdk/lib-dynamodb";
 
 const raw = new DynamoDBClient({});
 export const ddb = DynamoDBDocumentClient.from(raw);
@@ -33,4 +38,50 @@ export async function getItem(
     new GetCommand({ TableName: TABLE, Key: { PK: pk, SK: sk } }),
   );
   return res.Item as Record<string, unknown> | undefined;
+}
+
+export async function queryPrefix(
+  pk: string,
+  skPrefix: string,
+): Promise<Record<string, unknown>[]> {
+  const res = await ddb.send(
+    new QueryCommand({
+      TableName: TABLE,
+      KeyConditionExpression: "PK = :pk AND begins_with(SK, :prefix)",
+      ExpressionAttributeValues: { ":pk": pk, ":prefix": skPrefix },
+    }),
+  );
+  return (res.Items ?? []) as Record<string, unknown>[];
+}
+
+export function dailyCapKey(
+  activationId: string,
+  date: string,
+  anonId: string,
+  itemCode: string,
+) {
+  return {
+    PK: `DAILY_CAP#${activationId}#${date}`,
+    SK: `${anonId}#${itemCode}`,
+  };
+}
+
+export async function putItemIfAbsent(
+  item: Record<string, unknown>,
+): Promise<boolean> {
+  try {
+    await ddb.send(
+      new PutCommand({
+        TableName: TABLE,
+        Item: item,
+        ConditionExpression: "attribute_not_exists(PK)",
+      }),
+    );
+    return true;
+  } catch (e) {
+    if ((e as { name?: string }).name === "ConditionalCheckFailedException") {
+      return false;
+    }
+    throw e;
+  }
 }

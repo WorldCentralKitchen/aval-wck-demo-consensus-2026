@@ -9,9 +9,11 @@
   "dependencies": {
     "@aval/schemas": "workspace:*",
     "@aval/sdk": "workspace:*",
+    "@aws-sdk/client-bedrock-agent-runtime": "^3",
     "@aws-sdk/client-dynamodb": "^3",
     "@aws-sdk/client-rekognition": "^3",
-    "@aws-sdk/lib-dynamodb": "^3"
+    "@aws-sdk/lib-dynamodb": "^3",
+    "viem": "^2"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.145",
