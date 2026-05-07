@@ -237,6 +237,5 @@ Every disbursement decision has a named human accountable to it. This is the des
 
 - [Design Document v3](docs/design/Avak%20Design%20V3.md) — build plan, demo script, risk register, roadmap
 - [ADR-0001: Multi-Layer Credential Architecture](docs/adr/0001-aval-credential-arch-eas-bedrock-hitl-x402.md)
-- [ADR Index](docs/adr/README.md)
 
-*Built with care by the Aval team at World Central Kitchen.*
+
