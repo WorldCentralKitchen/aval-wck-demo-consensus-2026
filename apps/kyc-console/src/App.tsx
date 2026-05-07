@@ -38,7 +38,7 @@ interface QueueItem {
   flags: number;
   conf: number;
   rec: "approve" | "escalate" | "reject";
-  status: "agent-done" | "running" | "attested" | "attesting";
+  status: "agent-done" | "running" | "attested" | "attesting" | "rejected" | "escalated";
   attestationUid?: string;
   easScanUrl?: string;
 }
@@ -72,6 +72,12 @@ function QueueRow({ item, selected, onClick }: { item: QueueItem; selected: bool
       <div style={{ display: "flex", gap: 8, marginTop: 10, alignItems: "center", flexWrap: "wrap" }}>
         {item.status === "running"
           ? <Pill tone="info" dot>Agent running…</Pill>
+          : item.status === "attested"
+          ? <Pill tone="success">Attested</Pill>
+          : item.status === "rejected"
+          ? <Pill tone="danger">Rejected</Pill>
+          : item.status === "escalated"
+          ? <Pill tone="warn">Escalated</Pill>
           : <Pill tone={recTone}>Rec · {item.rec === "approve" ? "Approve" : item.rec === "escalate" ? "Escalate" : "Reject"}</Pill>}
         {item.flags > 0 && <Pill tone="warn">{item.flags} flag{item.flags > 1 ? "s" : ""}</Pill>}
         <span style={{ fontSize: 12, color: T.pebble, marginLeft: "auto" }}>{item.submittedAt}</span>
@@ -264,7 +270,7 @@ function AttestationPreview() {
   );
 }
 
-function ReviewPacket({ vendor, onApprove }: { vendor: QueueItem; onApprove: (v: QueueItem) => void }) {
+function ReviewPacket({ vendor, onApprove, onReject, onEscalate }: { vendor: QueueItem; onApprove: (v: QueueItem) => void; onReject: (v: QueueItem) => void; onEscalate: (v: QueueItem) => void }) {
   return (
     <div style={{ overflow: "auto", padding: "20px 24px 28px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 20, marginBottom: 18 }}>
@@ -293,6 +299,16 @@ function ReviewPacket({ vendor, onApprove }: { vendor: QueueItem; onApprove: (v:
                 </a>
               )}
             </div>
+          ) : vendor.status === "rejected" ? (
+            <div style={{ padding: "14px 16px", background: "rgba(232,96,39,.10)", border: "1px solid rgba(232,96,39,.35)", borderRadius: 8, textAlign: "center" }}>
+              <div style={{ fontWeight: 700, color: T.saffron, fontSize: 15 }}>Application Rejected</div>
+              <div style={{ fontSize: 12, color: T.slate, marginTop: 4 }}>Vendor has been notified. No attestation issued.</div>
+            </div>
+          ) : vendor.status === "escalated" ? (
+            <div style={{ padding: "14px 16px", background: "rgba(250,184,24,.10)", border: "1px solid rgba(250,184,24,.40)", borderRadius: 8, textAlign: "center" }}>
+              <div style={{ fontWeight: 700, color: "#8a6005", fontSize: 15 }}>Escalated to Senior KYC</div>
+              <div style={{ fontSize: 12, color: T.slate, marginTop: 4 }}>Flagged for manual review by a senior officer.</div>
+            </div>
           ) : (
             <button
               className="btn btn-primary btn-lg btn-block"
@@ -302,10 +318,12 @@ function ReviewPacket({ vendor, onApprove }: { vendor: QueueItem; onApprove: (v:
               {vendor.status === "attesting" ? "Minting attestation…" : "Approve & Issue Attestation"}
             </button>
           )}
+          {vendor.status !== "attested" && vendor.status !== "rejected" && vendor.status !== "escalated" && (
           <div style={{ display: "flex", gap: 8 }}>
-            <button className="btn btn-ghost" style={{ flex: 1 }}>Escalate</button>
-            <button className="btn btn-danger" style={{ flex: 1 }}>Reject</button>
+            <button className="btn btn-ghost" style={{ flex: 1 }} onClick={() => onEscalate(vendor)}>Escalate</button>
+            <button className="btn btn-danger" style={{ flex: 1 }} onClick={() => onReject(vendor)}>Reject</button>
           </div>
+          )}
           <div style={{ fontSize: 11, color: T.pebble, textAlign: "center", marginTop: 2 }}>
             Approval mints WCK-Vendor attestation to vendor wallet on Base Sepolia.
           </div>
@@ -331,6 +349,14 @@ export function App() {
   const [selectedId, setSelectedId] = useState("VND-0042");
   const [queue, setQueue] = useState<QueueItem[]>(QUEUE_DATA);
   const sel = queue.find((q) => q.id === selectedId)!;
+
+  function handleReject(vendor: QueueItem) {
+    setQueue((q) => q.map((item) => item.id === vendor.id ? { ...item, status: "rejected" } : item));
+  }
+
+  function handleEscalate(vendor: QueueItem) {
+    setQueue((q) => q.map((item) => item.id === vendor.id ? { ...item, status: "escalated" } : item));
+  }
 
   async function handleApprove(vendor: QueueItem) {
     setQueue((q) => q.map((item) => item.id === vendor.id ? { ...item, status: "attesting" } : item));
@@ -380,7 +406,7 @@ export function App() {
           </div>
         </div>
         {/* Detail */}
-        <ReviewPacket vendor={sel} onApprove={handleApprove} />
+        <ReviewPacket vendor={sel} onApprove={handleApprove} onReject={handleReject} onEscalate={handleEscalate} />
       </div>
     </div>
   );
