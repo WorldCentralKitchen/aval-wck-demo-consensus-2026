@@ -14,6 +14,26 @@ Built for [EasyA × Consensus Miami 2026](https://easya.io) — Coinbase + AWS t
 
 ---
 
+## Live Apps
+
+All seven interfaces are deployed and running on AWS Amplify. No login required for the demo flow.
+
+| App | URL | Who uses it |
+|-----|-----|-------------|
+| **KYC Console** | https://main.d24eib7kys2jha.amplifyapp.com | WCK KYC officer — reviews Bedrock agent packet, clicks Approve to mint EAS attestation |
+| **Ops Dashboard** | https://main.d35bwn340ibboz.amplifyapp.com | WCK Ops Lead — vendor status, live redemption feed, run USDC settlement |
+| **Vendor Portal** | https://main.d36zzg5vvye65d.amplifyapp.com | Vendor (Carlos) — sees attestation, wallet balance, disbursement history |
+| **Vendor POS** | https://main.d2y54nuhmkxlb9.amplifyapp.com | Counter staff — face-match recipient at point of service, log redemption |
+| **Field App** | https://main.d1c2jq9d48q43m.amplifyapp.com | WCK field worker — enroll recipient with biometric template (no PII) |
+| **x402 Terminal** | https://main.d1ndlg5b7tv2po.amplifyapp.com | Donor / audit agent — $0.01 USDC per credential lookup via Coinbase x402 |
+| **Trainer App** | https://main.d102qrwftz4j5v.amplifyapp.com | WCK trainer — issue WCK-Skill credential (W3C VC / Open Badges 3.0) |
+
+**API endpoint:** `https://bipfe4sy02.execute-api.us-east-1.amazonaws.com/prod/`
+
+**Suggested demo order:** KYC Console → Ops Dashboard → Vendor Portal → Vendor POS → Field App → x402 Terminal
+
+---
+
 ## Screenshots
 
 ### KYC Console — Agentic Vendor Onboarding
