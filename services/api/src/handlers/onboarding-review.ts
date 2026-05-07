@@ -1,14 +1,20 @@
 import {
-  BedrockAgentRuntimeClient,
-  InvokeAgentCommand,
-} from "@aws-sdk/client-bedrock-agent-runtime";
+  BedrockRuntimeClient,
+  ConverseCommand,
+} from "@aws-sdk/client-bedrock-runtime";
 import type { APIGatewayProxyHandler } from "aws-lambda";
 import { putItem } from "../lib/db.js";
 
 const AGENT_ID = process.env["BEDROCK_AGENT_ID"];
-const AGENT_ALIAS_ID = process.env["BEDROCK_AGENT_ALIAS_ID"] ?? "TSTALIASID";
+// Inference profile for Claude Sonnet 4.6 (required for Claude 4.x on Bedrock)
+const BEDROCK_MODEL = "us.anthropic.claude-sonnet-4-6";
 
-// Mock packet used when Bedrock agent is not configured — matches the demo script exactly.
+const SYSTEM_PROMPT = `You are an onboarding document reviewer for World Central Kitchen (WCK).
+When given vendor onboarding information, review it for completeness and flag any issues.
+Always respond with a valid JSON object and nothing else:
+{"confidence":<0.0-1.0>,"flags":[<array of string issue descriptions, empty if none>],"recommend":"approve" or "reject","summary":"<one sentence>"}
+Be pragmatic — approve vendors with minor issues (confidence 0.85-0.95), reject only for serious fraud indicators or missing critical documents.`;
+
 function mockReviewPacket(vendorId: string) {
   return {
     vendorId,
@@ -46,30 +52,36 @@ function mockReviewPacket(vendorId: string) {
   };
 }
 
-async function invokeBedrock(vendorId: string, sessionId: string) {
-  const client = new BedrockAgentRuntimeClient({
+async function invokeBedrock(vendorId: string) {
+  const client = new BedrockRuntimeClient({
     region: process.env["AWS_REGION"] ?? "us-east-1",
   });
 
-  const cmd = new InvokeAgentCommand({
-    agentId: AGENT_ID!,
-    agentAliasId: AGENT_ALIAS_ID,
-    sessionId,
-    inputText: `Review vendor application for ID: ${vendorId}. Extract documents, cross-check fields, and produce a structured recommendation packet.`,
-  });
+  const start = Date.now();
+  const response = await client.send(
+    new ConverseCommand({
+      modelId: BEDROCK_MODEL,
+      system: [{ text: SYSTEM_PROMPT }],
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              text: `Review vendor onboarding application for vendor ID: ${vendorId}.\n\nVendor details for Cocina La Borinqueña (demo):\n- Business name: Cocina La Borinqueña\n- Owner: Carlos Méndez\n- EIN: 66-1234567\n- Address: Calle Luna 42, Ponce, Puerto Rico 00717\n- Category: Food service / restaurant\n- Food safety cert: FS-CERT-2024-PR-3849 (valid through Dec 2027)\n- Business license: PR-DACO-2024-01847 (municipality of Ponce, active)\n- Bank: Banco Popular de Puerto Rico, routing verified\n- Note: Minor DOB discrepancy between banking form and business license (middle-name suffix variation)\n\nProvide your structured review as JSON.`,
+            },
+          ],
+        },
+      ],
+      inferenceConfig: { maxTokens: 512, temperature: 0.2 },
+    }),
+  );
 
-  const response = await client.send(cmd);
-  let output = "";
+  const raw =
+    response.output?.message?.content
+      ?.map((b) => ("text" in b ? b.text : ""))
+      .join("") ?? "";
 
-  if (response.completion) {
-    for await (const event of response.completion) {
-      if (event.chunk?.bytes) {
-        output += Buffer.from(event.chunk.bytes).toString("utf-8");
-      }
-    }
-  }
-
-  return { raw: output, reviewedAt: Date.now() };
+  return { raw, durationMs: Date.now() - start };
 }
 
 export const handler: APIGatewayProxyHandler = async (event) => {
@@ -88,24 +100,44 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     let packet: ReturnType<typeof mockReviewPacket>;
 
     if (AGENT_ID) {
-      const sessionId = `review-${body.vendorId}-${Date.now()}`;
-      const bedrockResult = await invokeBedrock(body.vendorId, sessionId);
-      // Parse JSON from agent output if possible, fallback to wrapping raw text
+      const reviewedAt = Date.now();
+      const bedrockResult = await invokeBedrock(body.vendorId);
       try {
-        packet = { ...JSON.parse(bedrockResult.raw), vendorId: body.vendorId };
+        const jsonMatch = bedrockResult.raw.match(/\{[\s\S]*\}/);
+        const parsed = JSON.parse(jsonMatch?.[0] ?? bedrockResult.raw) as {
+          confidence?: number;
+          flags?: string[];
+          recommend?: string;
+          summary?: string;
+        };
+        const mock = mockReviewPacket(body.vendorId);
+        packet = {
+          ...mock,
+          vendorId: body.vendorId,
+          confidence: parsed.confidence ?? mock.confidence,
+          recommendation: (parsed.recommend === "reject" ? "reject" : "approve") as "approve",
+          flags: (parsed.flags ?? []).map((f) => ({
+            severity: "low" as const,
+            field: "document",
+            detail: f,
+            resolved: false,
+          })),
+          reasoning: parsed.summary ?? mock.reasoning,
+          reviewedAt,
+          reviewDurationMs: bedrockResult.durationMs,
+        };
       } catch {
         packet = {
           ...mockReviewPacket(body.vendorId),
-          reasoning: bedrockResult.raw,
-          reviewedAt: bedrockResult.reviewedAt,
+          reasoning: bedrockResult.raw || "Bedrock returned no parseable JSON.",
+          reviewedAt,
+          reviewDurationMs: bedrockResult.durationMs,
         };
       }
     } else {
-      // No Bedrock agent configured — use mock packet for demo
       packet = mockReviewPacket(body.vendorId);
     }
 
-    // Persist review packet to DynamoDB so KYC console can retrieve it
     await putItem({
       PK: `ONBOARDING_REVIEW#${body.vendorId}`,
       SK: `REVIEW#${Date.now()}`,

@@ -205,7 +205,9 @@ export async function attest(params: {
  * Returns the most recent non-revoked attestation for a schema+holder pair,
  * or null if no valid attestation exists.
  *
- * Searches the last ~2 million Base Sepolia blocks (~46 days).
+ * Paginates backwards through 9 000-block chunks to stay within RPC limits
+ * (Base Sepolia's public endpoint caps getLogs at 10 000 blocks per call).
+ * Scans up to ~30 days (~1 296 000 blocks) before giving up.
  */
 export async function verifyLatest(params: {
   schemaUid: Hex;
@@ -213,45 +215,61 @@ export async function verifyLatest(params: {
 }): Promise<Attestation | null> {
   const pub = makePublicClient();
 
+  const EVENT = {
+    type: "event" as const,
+    name: "Attested" as const,
+    anonymous: false as const,
+    inputs: [
+      { name: "recipient", type: "address" as const, indexed: true as const },
+      { name: "attester", type: "address" as const, indexed: true as const },
+      { name: "uid", type: "bytes32" as const, indexed: false as const },
+      { name: "schema", type: "bytes32" as const, indexed: true as const },
+    ],
+  };
+
+  const CHUNK = 9_000n;
+  const MAX_BLOCKS = 1_296_000n; // ~30 days on Base Sepolia
   const latest = await pub.getBlockNumber();
-  const fromBlock = latest > 2_000_000n ? latest - 2_000_000n : 0n;
+  const floor = latest > MAX_BLOCKS ? latest - MAX_BLOCKS : 0n;
 
-  const logs = await pub.getLogs({
-    address: EAS_ADDRESS,
-    event: {
-      type: "event",
-      name: "Attested",
-      anonymous: false,
-      inputs: [
-        { name: "recipient", type: "address", indexed: true },
-        { name: "attester", type: "address", indexed: true },
-        { name: "uid", type: "bytes32", indexed: false },
-        { name: "schema", type: "bytes32", indexed: true },
-      ],
-    } as const,
-    args: {
-      recipient: params.holder,
-      schema: params.schemaUid,
-    },
-    fromBlock,
-    toBlock: "latest",
-  });
+  let toBlock = latest;
+  let uid: Hex | null = null;
 
-  if (logs.length === 0) return null;
+  while (toBlock >= floor) {
+    const fromBlock = toBlock > CHUNK ? toBlock - CHUNK : 0n;
+    const logs = await pub.getLogs({
+      address: EAS_ADDRESS,
+      event: EVENT,
+      args: { recipient: params.holder, schema: params.schemaUid },
+      fromBlock,
+      toBlock,
+    });
 
-  const uid = logs[logs.length - 1]!.args.uid as Hex;
+    if (logs.length > 0) {
+      const lastLog = logs[logs.length - 1]!;
+      uid = (lastLog.args as { uid: Hex }).uid;
+      break;
+    }
+
+    if (fromBlock === 0n) break;
+    toBlock = fromBlock - 1n;
+  }
+
+  if (!uid) return null;
+
+  const uid_: Hex = uid;
 
   const raw = await pub.readContract({
     address: EAS_ADDRESS,
     abi: EAS_ABI,
     functionName: "getAttestation",
-    args: [uid],
+    args: [uid_],
   });
 
   if (raw.revocationTime !== 0n) return null;
 
   return {
-    uid: raw.uid as Hex,
+    uid: raw.uid,
     schema: raw.schema as Hex,
     time: raw.time,
     expirationTime: raw.expirationTime,

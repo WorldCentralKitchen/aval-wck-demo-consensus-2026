@@ -144,8 +144,13 @@ export class AvalStack extends Stack {
         actions: [
           "bedrock:InvokeAgent",
           "bedrock:InvokeModel",
+          "bedrock:InvokeModelWithResponseStream",
+          "bedrock:Converse",
+          "bedrock:ConverseStream",
           "textract:AnalyzeDocument",
           "textract:DetectDocumentText",
+          "aws-marketplace:ViewSubscriptions",
+          "aws-marketplace:Subscribe",
         ],
         resources: ["*"],
       }),

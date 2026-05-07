@@ -8,7 +8,8 @@
     "register-schemas": "tsx src/register-schemas.ts",
     "create-wallets": "tsx src/create-wallets.ts",
     "fund-status": "tsx src/fund-status.ts",
-    "test-cdp": "tsx src/test-cdp.ts"
+    "test-cdp": "tsx src/test-cdp.ts",
+    "verify-agent": "tsx src/verify-agent.ts"
   },
   "dependencies": {
     "@aval/schemas": "workspace:*",
