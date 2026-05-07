@@ -44,12 +44,12 @@ interface QueueItem {
 }
 
 const QUEUE_DATA: QueueItem[] = [
-  { id: "VND-0042", name: "Carlos Méndez", biz: "Cocina La Borinqueña", region: "Puerto Rico · Ponce", category: "restaurant", walletAddress: "0x9f2A4F18b13bC18b13b8e3A27b3aFD4c1", submittedAt: "2 min ago", docs: 5, flags: 1, conf: 0.92, rec: "approve", status: "agent-done" },
-  { id: "VND-0041", name: "Rosalía Brun", biz: "Café del Pueblo", region: "Puerto Rico · San Juan", category: "restaurant", walletAddress: "0x4d113A77B1C18b13b8e3A27b3aFD4c1a", submittedAt: "9 min ago", docs: 4, flags: 0, conf: 0.97, rec: "approve", status: "agent-done" },
-  { id: "VND-0040", name: "Ti Marc Joseph", biz: "Marché Joseph", region: "Haiti · Cap-Haïtien", category: "food_shop", walletAddress: "0x71ee3C0a4d113A77B1C18b13b8e3A27b", submittedAt: "14 min ago", docs: 6, flags: 3, conf: 0.61, rec: "escalate", status: "agent-done" },
-  { id: "VND-0039", name: "Aqua Dominicana SRL", biz: "Water supplier", region: "DR · Santo Domingo", category: "water", walletAddress: "0xAqua3C0a4d113A77B1C18b13b8e3A27b", submittedAt: "22 min ago", docs: 5, flags: 0, conf: 0.95, rec: "approve", status: "agent-done" },
-  { id: "VND-0038", name: "Familia Soto", biz: "Panadería Soto", region: "Puerto Rico · Mayagüez", category: "food_shop", walletAddress: "0xSoto4d113A77B1C18b13b8e3A27b3aFD4c", submittedAt: "31 min ago", docs: 3, flags: 2, conf: 0.44, rec: "reject", status: "agent-done" },
-  { id: "VND-0037", name: "Hadi Khoury", biz: "Khoury Catering", region: "Puerto Rico · Bayamón", category: "restaurant", walletAddress: "0xKhoury13A77B1C18b13b8e3A27b3aFD4c1", submittedAt: "58 min ago", docs: 4, flags: 0, conf: 0.93, rec: "approve", status: "running" },
+  { id: "VND-0042", name: "Carlos Méndez", biz: "Cocina La Borinqueña", region: "Puerto Rico · Ponce", category: "restaurant", walletAddress: "0xFa7C7B4a7D1a95c1D4CeF94e8B6774aFE74a7A58", submittedAt: "2 min ago", docs: 5, flags: 1, conf: 0.92, rec: "approve", status: "agent-done" },
+  { id: "VND-0041", name: "Rosalía Brun", biz: "Café del Pueblo", region: "Puerto Rico · San Juan", category: "restaurant", walletAddress: "0xD745d710350D0389ea8aCC68ECC8083C0BeE7e19", submittedAt: "9 min ago", docs: 4, flags: 0, conf: 0.97, rec: "approve", status: "agent-done" },
+  { id: "VND-0040", name: "Ti Marc Joseph", biz: "Marché Joseph", region: "Haiti · Cap-Haïtien", category: "food_shop", walletAddress: "0x64cF124F126f87451Ba13f1D6d01A65199b39Cdd", submittedAt: "14 min ago", docs: 6, flags: 3, conf: 0.61, rec: "escalate", status: "agent-done" },
+  { id: "VND-0039", name: "Aqua Dominicana SRL", biz: "Water supplier", region: "DR · Santo Domingo", category: "water", walletAddress: "0x03233BDa29b31CB927e064737336b5433013481b", submittedAt: "22 min ago", docs: 5, flags: 0, conf: 0.95, rec: "approve", status: "agent-done" },
+  { id: "VND-0038", name: "Familia Soto", biz: "Panadería Soto", region: "Puerto Rico · Mayagüez", category: "food_shop", walletAddress: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", submittedAt: "31 min ago", docs: 3, flags: 2, conf: 0.44, rec: "reject", status: "agent-done" },
+  { id: "VND-0037", name: "Hadi Khoury", biz: "Khoury Catering", region: "Puerto Rico · Bayamón", category: "restaurant", walletAddress: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8", submittedAt: "58 min ago", docs: 4, flags: 0, conf: 0.93, rec: "approve", status: "running" },
 ];
 
 function QueueRow({ item, selected, onClick }: { item: QueueItem; selected: boolean; onClick: () => void }) {

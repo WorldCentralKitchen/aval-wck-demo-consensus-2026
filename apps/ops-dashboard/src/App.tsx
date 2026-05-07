@@ -45,9 +45,9 @@ function Stat2({ label, value }: { label: string; value: string }) {
 type PillTone = "success" | "warn" | "danger" | "info" | "neutral" | "primary" | "saffron";
 
 const VENDORS: { n: string; r: string; t: number; s: PillTone; sl: string; w: string }[] = [
-  { n: "Cocina La Borinqueña", r: "PR · Ponce",         t: 12, s: "success", sl: "Verified",        w: "0x9f2A…D4c1" },
+  { n: "Cocina La Borinqueña", r: "PR · Ponce",         t: 12, s: "success", sl: "Verified",        w: "0xFa7C…7A58" },
   { n: "Café del Pueblo",      r: "PR · San Juan",       t: 0,  s: "info",    sl: "Pending review",  w: "pending" },
-  { n: "Aqua Dominicana SRL",  r: "DR · Santo Domingo",  t: 42, s: "success", sl: "Verified",        w: "0x71ee…3c0a" },
+  { n: "Aqua Dominicana SRL",  r: "DR · Santo Domingo",  t: 42, s: "success", sl: "Verified",        w: "0x0323…481b" },
   { n: "Khoury Catering",      r: "PR · Bayamón",        t: 0,  s: "info",    sl: "Agent reviewing", w: "pending" },
   { n: "Marché Joseph",        r: "HT · Cap-Haïtien",    t: 0,  s: "warn",    sl: "Escalated",       w: "pending" },
   { n: "Panadería Soto",       r: "PR · Mayagüez",       t: 0,  s: "danger",  sl: "Rejected",        w: "—" },
