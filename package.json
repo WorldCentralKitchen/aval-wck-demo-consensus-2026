@@ -19,6 +19,8 @@
     "dev:pos": "pnpm --filter @aval/vendor-pos dev",
     "dev:field": "pnpm --filter @aval/field-app dev",
     "dev:trainer": "pnpm --filter @aval/trainer-app dev",
+    "dev:ops": "pnpm --filter @aval/ops-dashboard dev",
+    "dev:x402": "pnpm --filter @aval/x402-terminal dev",
     "infra:synth": "pnpm --filter @aval/infra synth",
     "infra:diff": "pnpm --filter @aval/infra diff",
     "infra:deploy": "pnpm --filter @aval/infra deploy"

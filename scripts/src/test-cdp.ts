@@ -21,7 +21,9 @@ async function main(): Promise<void> {
   Coinbase.configure({ apiKeyName, privateKey });
 
   console.log("Listing wallets (read-only auth check)...");
-  const { wallets } = await Wallet.listWallets({ limit: 5 });
+  const page = await Wallet.listWallets({ limit: 5 });
+  // SDK v0.25 returns a PaginationResponse; wallets are in .data
+  const wallets: Wallet[] = (page as unknown as { data?: Wallet[] }).data ?? (page as unknown as Wallet[]);
 
   console.log("\nCDP connection OK");
   console.log(`  Existing wallets: ${wallets.length}`);
