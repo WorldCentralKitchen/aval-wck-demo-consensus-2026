@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AppBar, Pill, ActivationBar } from "@aval/ui";
-import { createAvalClient } from "@aval/sdk";
+import { createAvalClient, type VendorApplication } from "@aval/sdk/api";
 
 const api = createAvalClient(
   import.meta.env.VITE_API_URL ?? "",
@@ -26,6 +26,8 @@ const T = {
   border: "rgba(19,19,19,0.14)",
 };
 
+type UIStatus = "pending" | "attesting" | "attested" | "rejected" | "escalated";
+
 interface QueueItem {
   id: string;
   name: string;
@@ -38,22 +40,53 @@ interface QueueItem {
   flags: number;
   conf: number;
   rec: "approve" | "escalate" | "reject";
-  status: "agent-done" | "running" | "attested" | "attesting" | "rejected" | "escalated";
+  status: UIStatus;
   attestationUid?: string;
   easScanUrl?: string;
 }
 
-const QUEUE_DATA: QueueItem[] = [
-  { id: "VND-0042", name: "Carlos Méndez", biz: "Cocina La Borinqueña", region: "Puerto Rico · Ponce", category: "restaurant", walletAddress: "0xFa7C7B4a7D1a95c1D4CeF94e8B6774aFE74a7A58", submittedAt: "2 min ago", docs: 5, flags: 1, conf: 0.92, rec: "approve", status: "agent-done" },
-  { id: "VND-0041", name: "Rosalía Brun", biz: "Café del Pueblo", region: "Puerto Rico · San Juan", category: "restaurant", walletAddress: "0xD745d710350D0389ea8aCC68ECC8083C0BeE7e19", submittedAt: "9 min ago", docs: 4, flags: 0, conf: 0.97, rec: "approve", status: "agent-done" },
-  { id: "VND-0040", name: "Ti Marc Joseph", biz: "Marché Joseph", region: "Haiti · Cap-Haïtien", category: "food_shop", walletAddress: "0x64cF124F126f87451Ba13f1D6d01A65199b39Cdd", submittedAt: "14 min ago", docs: 6, flags: 3, conf: 0.61, rec: "escalate", status: "agent-done" },
-  { id: "VND-0039", name: "Aqua Dominicana SRL", biz: "Water supplier", region: "DR · Santo Domingo", category: "water", walletAddress: "0x03233BDa29b31CB927e064737336b5433013481b", submittedAt: "22 min ago", docs: 5, flags: 0, conf: 0.95, rec: "approve", status: "agent-done" },
-  { id: "VND-0038", name: "Familia Soto", biz: "Panadería Soto", region: "Puerto Rico · Mayagüez", category: "food_shop", walletAddress: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", submittedAt: "31 min ago", docs: 3, flags: 2, conf: 0.44, rec: "reject", status: "agent-done" },
-  { id: "VND-0037", name: "Hadi Khoury", biz: "Khoury Catering", region: "Puerto Rico · Bayamón", category: "restaurant", walletAddress: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8", submittedAt: "58 min ago", docs: 4, flags: 0, conf: 0.93, rec: "approve", status: "running" },
-];
+function fromApi(v: VendorApplication): QueueItem {
+  const statusMap: Record<VendorApplication["status"], UIStatus> = {
+    pending: "pending",
+    approved: "attested",
+    rejected: "rejected",
+    escalated: "escalated",
+  };
+  return {
+    id:             v.vendorId,
+    name:           v.name,
+    biz:            v.biz,
+    region:         v.region,
+    category:       v.category,
+    walletAddress:  v.walletAddress,
+    submittedAt:    v.submittedAt,
+    docs:           v.docs,
+    flags:          v.flags,
+    conf:           v.conf,
+    rec:            v.rec,
+    status:         statusMap[v.status],
+    attestationUid: v.attestationUid ?? undefined,
+    easScanUrl:     v.easScanUrl ?? undefined,
+  };
+}
+
+function fmtRelative(iso: string): string {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  return `${hrs}h ago`;
+}
 
 function QueueRow({ item, selected, onClick }: { item: QueueItem; selected: boolean; onClick: () => void }) {
   const recTone = item.rec === "approve" ? "success" : item.rec === "escalate" ? "warn" : "danger";
+  const statusPill =
+    item.status === "attested"  ? <Pill tone="success">Attested</Pill> :
+    item.status === "rejected"  ? <Pill tone="danger">Rejected</Pill> :
+    item.status === "escalated" ? <Pill tone="warn">Escalated</Pill> :
+    item.status === "attesting" ? <Pill tone="info" dot>Minting…</Pill> :
+                                  <Pill tone={recTone}>Rec · {item.rec === "approve" ? "Approve" : item.rec === "escalate" ? "Escalate" : "Reject"}</Pill>;
   return (
     <div onClick={onClick} style={{
       padding: "14px 18px",
@@ -70,17 +103,9 @@ function QueueRow({ item, selected, onClick }: { item: QueueItem; selected: bool
         <span className="mono" style={{ color: T.pebble, fontSize: 11 }}>{item.id}</span>
       </div>
       <div style={{ display: "flex", gap: 8, marginTop: 10, alignItems: "center", flexWrap: "wrap" }}>
-        {item.status === "running"
-          ? <Pill tone="info" dot>Agent running…</Pill>
-          : item.status === "attested"
-          ? <Pill tone="success">Attested</Pill>
-          : item.status === "rejected"
-          ? <Pill tone="danger">Rejected</Pill>
-          : item.status === "escalated"
-          ? <Pill tone="warn">Escalated</Pill>
-          : <Pill tone={recTone}>Rec · {item.rec === "approve" ? "Approve" : item.rec === "escalate" ? "Escalate" : "Reject"}</Pill>}
+        {statusPill}
         {item.flags > 0 && <Pill tone="warn">{item.flags} flag{item.flags > 1 ? "s" : ""}</Pill>}
-        <span style={{ fontSize: 12, color: T.pebble, marginLeft: "auto" }}>{item.submittedAt}</span>
+        <span style={{ fontSize: 12, color: T.pebble, marginLeft: "auto" }}>{fmtRelative(item.submittedAt)}</span>
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8, fontSize: 12, color: T.slate }}>
         <span>{item.region}</span>
@@ -154,14 +179,14 @@ function CrossCheckFlags() {
 
 function ExtractedFields() {
   const fields = [
-    { label: "Legal name", value: "Carlos Ramón Méndez Ortiz", source: "national-id.jpg" },
-    { label: "Business name", value: "Cocina La Borinqueña LLC", source: "business-license.pdf" },
-    { label: "Region", value: "Puerto Rico (Ponce 00731)", source: "utility-proof.pdf" },
-    { label: "Category", value: "Restaurant", source: "business-license.pdf" },
-    { label: "License #", value: "PR-FS-2024-008814", source: "business-license.pdf" },
+    { label: "Legal name",       value: "Carlos Ramón Méndez Ortiz",          source: "national-id.jpg" },
+    { label: "Business name",    value: "Cocina La Borinqueña LLC",            source: "business-license.pdf" },
+    { label: "Region",           value: "Puerto Rico (Ponce 00731)",           source: "utility-proof.pdf" },
+    { label: "Category",         value: "Restaurant",                          source: "business-license.pdf" },
+    { label: "License #",        value: "PR-FS-2024-008814",                   source: "business-license.pdf" },
     { label: "Food safety cert", value: "ServSafe PR · valid through Aug 2026", source: "food-safety-cert.jpg" },
-    { label: "Banking", value: "Banco Popular · acct ••••2031", source: "banking-form.pdf" },
-    { label: "Wallet (CDP)", value: "0x9f2A…D4c1", source: "provisioned on approval" },
+    { label: "Banking",          value: "Banco Popular · acct ••••2031",       source: "banking-form.pdf" },
+    { label: "Wallet (CDP)",     value: "0x9f2A…D4c1",                         source: "provisioned on approval" },
   ];
   return (
     <div className="card card-pad">
@@ -169,7 +194,7 @@ function ExtractedFields() {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 24px" }}>
         {fields.map((f) => (
           <div key={f.label}>
-            <div style={{ fontSize: 11, color: T.pebble, letterSpacing: ".04em", textTransform: "uppercase", fontWeight: 600 }}>{f.label}</div>
+            <div style={{ fontSize: 11, color: T.pebble, letterSpacing: ".04em", textTransform: "uppercase" as const, fontWeight: 600 }}>{f.label}</div>
             <div style={{ fontSize: 14, color: T.ink, fontWeight: 500, marginTop: 2 }}>{f.value}</div>
             <div style={{ fontSize: 11, color: T.pebble, marginTop: 1 }}>from <span className="mono">{f.source}</span></div>
           </div>
@@ -208,10 +233,10 @@ function DocThumb({ name, tone, label, kind }: { name: string; tone: string; lab
 function DocStrip() {
   const docs = [
     { name: "business-license.pdf", tone: T.blueberry, label: "License", kind: "PDF" },
-    { name: "food-safety-cert.jpg", tone: T.pea, label: "Cert", kind: "JPG" },
-    { name: "national-id.jpg", tone: T.saffron, label: "ID", kind: "JPG" },
-    { name: "banking-form.pdf", tone: T.fig, label: "Banking", kind: "PDF" },
-    { name: "utility-proof.pdf", tone: T.sky, label: "Address", kind: "PDF" },
+    { name: "food-safety-cert.jpg", tone: T.pea,       label: "Cert",    kind: "JPG" },
+    { name: "national-id.jpg",      tone: T.saffron,   label: "ID",      kind: "JPG" },
+    { name: "banking-form.pdf",     tone: T.fig,       label: "Banking", kind: "PDF" },
+    { name: "utility-proof.pdf",    tone: T.sky,       label: "Address", kind: "PDF" },
   ];
   return (
     <div className="card card-pad">
@@ -249,7 +274,7 @@ function AttestationPreview() {
   return (
     <div className="card" style={{ background: `linear-gradient(180deg, ${T.blueberry} 0%, #0f4f89 100%)`, color: "#fff", padding: "18px 20px", borderColor: "transparent" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-        <div style={{ fontSize: 11, letterSpacing: ".10em", textTransform: "uppercase", color: "rgba(255,255,255,.75)", fontWeight: 700 }}>EAS Attestation Preview</div>
+        <div style={{ fontSize: 11, letterSpacing: ".10em", textTransform: "uppercase" as const, color: "rgba(255,255,255,.75)", fontWeight: 700 }}>EAS Attestation Preview</div>
         <span className="mono" style={{ fontSize: 11, opacity: .75 }}>schema: WCK-Vendor</span>
       </div>
       <pre style={{ margin: 0, fontSize: 12, lineHeight: 1.55, fontFamily: "ui-monospace,Menlo,Consolas,monospace", color: "rgba(255,255,255,.95)", whiteSpace: "pre-wrap" }}>
@@ -270,23 +295,30 @@ function AttestationPreview() {
   );
 }
 
-function ReviewPacket({ vendor, onApprove, onReject, onEscalate }: { vendor: QueueItem; onApprove: (v: QueueItem) => void; onReject: (v: QueueItem) => void; onEscalate: (v: QueueItem) => void }) {
+const REC_LABEL = { approve: "Approve", escalate: "Escalate", reject: "Reject" } as const;
+const REC_TONE  = { approve: "success", escalate: "warn",    reject: "danger"  } as const;
+
+function ReviewPacket({ vendor, onApprove, onReject, onEscalate }: {
+  vendor: QueueItem;
+  onApprove:  (v: QueueItem) => void;
+  onReject:   (v: QueueItem) => void;
+  onEscalate: (v: QueueItem) => void;
+}) {
+  const decided = vendor.status === "attested" || vendor.status === "rejected" || vendor.status === "escalated";
   return (
     <div style={{ overflow: "auto", padding: "20px 24px 28px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 20, marginBottom: 18 }}>
         <div>
           <div className="eyebrow" style={{ marginBottom: 6 }}>Vendor Application · {vendor.id}</div>
           <h1 style={{ margin: 0, fontSize: 30, fontWeight: 700, letterSpacing: "-.01em", color: T.ink }}>{vendor.name}</h1>
-          <div style={{ color: T.slate, fontSize: 15, marginTop: 4 }}>{vendor.biz} · {vendor.region} · Restaurant</div>
+          <div style={{ color: T.slate, fontSize: 15, marginTop: 4 }}>{vendor.biz} · {vendor.region} · {vendor.category}</div>
           <div style={{ display: "flex", gap: 14, marginTop: 14, alignItems: "center", flexWrap: "wrap" }}>
-            <Pill tone="success">Recommend · Approve</Pill>
+            <Pill tone={REC_TONE[vendor.rec]}>Recommend · {REC_LABEL[vendor.rec]}</Pill>
             <span style={{ fontSize: 13, color: T.slate }}>Confidence <strong style={{ color: T.ink }}>{vendor.conf.toFixed(2)}</strong></span>
             <span style={{ fontSize: 13, color: T.slate }}>·</span>
             <span style={{ fontSize: 13, color: T.slate }}>{vendor.docs} documents read</span>
             <span style={{ fontSize: 13, color: T.slate }}>·</span>
             <span style={{ fontSize: 13, color: T.slate }}>{vendor.flags} cross-check flag{vendor.flags !== 1 ? "s" : ""}</span>
-            <span style={{ fontSize: 13, color: T.slate }}>·</span>
-            <span style={{ fontSize: 13, color: T.slate }}>review took 47s</span>
           </div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "stretch", minWidth: 280 }}>
@@ -312,17 +344,17 @@ function ReviewPacket({ vendor, onApprove, onReject, onEscalate }: { vendor: Que
           ) : (
             <button
               className="btn btn-primary btn-lg btn-block"
-              disabled={vendor.status === "attesting" || vendor.status === "running"}
+              disabled={vendor.status === "attesting"}
               onClick={() => onApprove(vendor)}
             >
               {vendor.status === "attesting" ? "Minting attestation…" : "Approve & Issue Attestation"}
             </button>
           )}
-          {vendor.status !== "attested" && vendor.status !== "rejected" && vendor.status !== "escalated" && (
-          <div style={{ display: "flex", gap: 8 }}>
-            <button className="btn btn-ghost" style={{ flex: 1 }} onClick={() => onEscalate(vendor)}>Escalate</button>
-            <button className="btn btn-danger" style={{ flex: 1 }} onClick={() => onReject(vendor)}>Reject</button>
-          </div>
+          {!decided && (
+            <div style={{ display: "flex", gap: 8 }}>
+              <button className="btn btn-ghost"  style={{ flex: 1 }} onClick={() => onEscalate(vendor)}>Escalate</button>
+              <button className="btn btn-danger" style={{ flex: 1 }} onClick={() => onReject(vendor)}>Reject</button>
+            </div>
           )}
           <div style={{ fontSize: 11, color: T.pebble, textAlign: "center", marginTop: 2 }}>
             Approval mints WCK-Vendor attestation to vendor wallet on Base Sepolia.
@@ -346,16 +378,32 @@ function ReviewPacket({ vendor, onApprove, onReject, onEscalate }: { vendor: Que
 }
 
 export function App() {
-  const [selectedId, setSelectedId] = useState("VND-0042");
-  const [queue, setQueue] = useState<QueueItem[]>(QUEUE_DATA);
-  const sel = queue.find((q) => q.id === selectedId)!;
+  const [queue, setQueue] = useState<QueueItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  function handleReject(vendor: QueueItem) {
+  useEffect(() => {
+    api.listVendors()
+      .then(({ vendors }) => {
+        const items = vendors.map(fromApi);
+        setQueue(items);
+        const first = items.find((v) => v.status === "pending") ?? items[0];
+        setSelectedId(first?.id ?? null);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const sel = queue.find((q) => q.id === selectedId);
+
+  async function handleReject(vendor: QueueItem) {
     setQueue((q) => q.map((item) => item.id === vendor.id ? { ...item, status: "rejected" } : item));
+    await api.updateVendorStatus({ vendorId: vendor.id, status: "rejected" }).catch(console.error);
   }
 
-  function handleEscalate(vendor: QueueItem) {
+  async function handleEscalate(vendor: QueueItem) {
     setQueue((q) => q.map((item) => item.id === vendor.id ? { ...item, status: "escalated" } : item));
+    await api.updateVendorStatus({ vendorId: vendor.id, status: "escalated" }).catch(console.error);
   }
 
   async function handleApprove(vendor: QueueItem) {
@@ -373,9 +421,14 @@ export function App() {
           ? { ...item, status: "attested", attestationUid: result.uid, easScanUrl: result.easScanUrl }
           : item,
       ));
+      await api.updateVendorStatus({
+        vendorId: vendor.id,
+        status: "approved",
+        attestationUid: result.uid,
+        easScanUrl: result.easScanUrl,
+      }).catch(console.error);
       window.open(result.easScanUrl, "_blank");
     } catch {
-      // Demo fallback: show as attested with a placeholder UID
       const demoUid = `0x${Math.random().toString(16).slice(2).padEnd(64, "0")}`;
       const demoUrl = `https://base-sepolia.easscan.org/attestation/view/${demoUid}`;
       setQueue((q) => q.map((item) =>
@@ -383,13 +436,31 @@ export function App() {
           ? { ...item, status: "attested", attestationUid: demoUid, easScanUrl: demoUrl }
           : item,
       ));
+      await api.updateVendorStatus({
+        vendorId: vendor.id,
+        status: "approved",
+        attestationUid: demoUid,
+        easScanUrl: demoUrl,
+      }).catch(console.error);
       window.open(demoUrl, "_blank");
     }
-  };
+  }
+
+  const pendingCount = queue.filter((v) => v.status === "pending" || v.status === "attesting").length;
 
   return (
     <div className="aval-app">
-      <AppBar appName="KYC Console" appRole="Vendor onboarding queue" user="Lena Park" role="WCK KYC Officer" badge={<Pill tone="primary" dot>6 pending</Pill>} />
+      <AppBar
+        appName="KYC Console"
+        appRole="Vendor onboarding queue"
+        user="Lena Park"
+        role="WCK KYC Officer"
+        badge={
+          loading
+            ? <Pill tone="neutral" dot>Loading…</Pill>
+            : <Pill tone="primary" dot>{pendingCount} pending</Pill>
+        }
+      />
       <ActivationBar />
       <div style={{ flex: 1, minHeight: 0, display: "grid", gridTemplateColumns: "380px 1fr", background: T.paper }}>
         {/* Queue sidebar */}
@@ -402,11 +473,23 @@ export function App() {
             </div>
           </div>
           <div style={{ flex: 1, overflow: "auto" }}>
-            {queue.map((q) => <QueueRow key={q.id} item={q} selected={q.id === selectedId} onClick={() => setSelectedId(q.id)} />)}
+            {loading ? (
+              <div style={{ padding: 24, textAlign: "center", color: T.pebble, fontSize: 13 }}>Loading queue…</div>
+            ) : queue.length === 0 ? (
+              <div style={{ padding: 24, textAlign: "center", color: T.pebble, fontSize: 13 }}>No applications yet.</div>
+            ) : (
+              queue.map((q) => <QueueRow key={q.id} item={q} selected={q.id === selectedId} onClick={() => setSelectedId(q.id)} />)
+            )}
           </div>
         </div>
         {/* Detail */}
-        <ReviewPacket vendor={sel} onApprove={handleApprove} onReject={handleReject} onEscalate={handleEscalate} />
+        {sel ? (
+          <ReviewPacket vendor={sel} onApprove={handleApprove} onReject={handleReject} onEscalate={handleEscalate} />
+        ) : (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", color: T.pebble, fontSize: 14 }}>
+            {loading ? "Loading…" : "Select a vendor to review"}
+          </div>
+        )}
       </div>
     </div>
   );

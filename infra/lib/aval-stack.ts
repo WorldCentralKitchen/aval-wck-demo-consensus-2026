@@ -102,6 +102,8 @@ export class AvalStack extends Stack {
     const settleFn = makeFn("SettleFn", "settle.ts", 120);
     const onboardingReviewFn = makeFn("OnboardingReviewFn", "onboarding-review.ts", 120);
     const credentialVerifyFn = makeFn("CredentialVerifyFn", "credential-verify.ts", 30);
+    const vendorsListFn = makeFn("VendorsListFn", "vendors-list.ts");
+    const vendorsUpdateFn = makeFn("VendorsUpdateFn", "vendors-update.ts");
 
     // ── IAM — Phase 1b ────────────────────────────────────────────────────────
     table.grantWriteData(enrollFn);
@@ -134,6 +136,8 @@ export class AvalStack extends Stack {
     // ── IAM — Phase 2 ─────────────────────────────────────────────────────────
     table.grantReadWriteData(settleFn);
     table.grantReadWriteData(onboardingReviewFn);
+    table.grantReadData(vendorsListFn);
+    table.grantReadWriteData(vendorsUpdateFn);
 
     onboardingBucket.grantReadWrite(onboardingReviewFn);
 
@@ -221,5 +225,10 @@ export class AvalStack extends Stack {
     api.root.addResource("credential")
       .addResource("verify")
       .addMethod("GET", new LambdaIntegration(credentialVerifyFn));
+
+    // Vendor queue management
+    const vendorsResource = api.root.addResource("vendors");
+    vendorsResource.addMethod("GET", new LambdaIntegration(vendorsListFn), AUTH);
+    vendorsResource.addResource("update").addMethod("POST", new LambdaIntegration(vendorsUpdateFn), AUTH);
   }
 }

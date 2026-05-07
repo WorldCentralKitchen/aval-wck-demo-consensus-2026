@@ -93,6 +93,34 @@ export interface OnboardingReviewResult {
   reviewDurationMs: number;
 }
 
+export interface VendorApplication {
+  vendorId: string;
+  name: string;
+  biz: string;
+  region: string;
+  category: "restaurant" | "food_shop" | "water" | "supplies" | "other";
+  walletAddress: string;
+  status: "pending" | "approved" | "rejected" | "escalated";
+  submittedAt: string;
+  docs: number;
+  flags: number;
+  conf: number;
+  rec: "approve" | "escalate" | "reject";
+  attestationUid: string | null;
+  easScanUrl: string | null;
+}
+
+export interface ListVendorsResult {
+  vendors: VendorApplication[];
+}
+
+export interface UpdateVendorStatusParams {
+  vendorId: string;
+  status: "approved" | "rejected" | "escalated";
+  attestationUid?: string;
+  easScanUrl?: string;
+}
+
 export interface CredentialVerifyResult {
   attested: boolean;
   vendorAddress: string;
@@ -118,6 +146,8 @@ export interface AvalApiClient {
   settle(params: SettleParams): Promise<SettleResult>;
   onboardingReview(params: OnboardingReviewParams): Promise<OnboardingReviewResult>;
   credentialVerify(params: { vendorAddress: string; paymentHeader?: string }): Promise<{ status: 200 | 402; body: CredentialVerifyResult | unknown }>;
+  listVendors(): Promise<ListVendorsResult>;
+  updateVendorStatus(params: UpdateVendorStatusParams): Promise<{ ok: boolean }>;
 }
 
 export function createAvalClient(baseUrl: string, apiKey: string): AvalApiClient {
@@ -163,6 +193,9 @@ export function createAvalClient(baseUrl: string, apiKey: string): AvalApiClient
     attestVerify: (p) => get("/attest/verify", { vendorAddress: p.vendorAddress }),
     settle: (p) => post("/settle", p),
     onboardingReview: (p) => post("/onboarding/review", p),
+
+    listVendors: () => get("/vendors", {}),
+    updateVendorStatus: (p) => post("/vendors/update", p),
 
     async credentialVerify({ vendorAddress, paymentHeader }) {
       const url = new URL(`${baseUrl}/credential/verify`);

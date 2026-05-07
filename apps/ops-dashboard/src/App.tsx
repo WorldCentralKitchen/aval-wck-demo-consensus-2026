@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AppBar, Pill, ActivationBar } from "@aval/ui";
-import { createAvalClient } from "@aval/sdk";
+import { createAvalClient, type VendorApplication } from "@aval/sdk/api";
 
 const api = createAvalClient(
   import.meta.env.VITE_API_URL ?? "",
@@ -44,14 +44,16 @@ function Stat2({ label, value }: { label: string; value: string }) {
 
 type PillTone = "success" | "warn" | "danger" | "info" | "neutral" | "primary" | "saffron";
 
-const VENDORS: { n: string; r: string; t: number; s: PillTone; sl: string; w: string }[] = [
-  { n: "Cocina La Borinqueña", r: "PR · Ponce",         t: 12, s: "success", sl: "Verified",        w: "0xFa7C…7A58" },
-  { n: "Café del Pueblo",      r: "PR · San Juan",       t: 0,  s: "info",    sl: "Pending review",  w: "pending" },
-  { n: "Aqua Dominicana SRL",  r: "DR · Santo Domingo",  t: 42, s: "success", sl: "Verified",        w: "0x0323…481b" },
-  { n: "Khoury Catering",      r: "PR · Bayamón",        t: 0,  s: "info",    sl: "Agent reviewing", w: "pending" },
-  { n: "Marché Joseph",        r: "HT · Cap-Haïtien",    t: 0,  s: "warn",    sl: "Escalated",       w: "pending" },
-  { n: "Panadería Soto",       r: "PR · Mayagüez",       t: 0,  s: "danger",  sl: "Rejected",        w: "—" },
-];
+function vendorPill(status: VendorApplication["status"]): { tone: PillTone; label: string } {
+  switch (status) {
+    case "approved":  return { tone: "success", label: "Verified" };
+    case "rejected":  return { tone: "danger",  label: "Rejected" };
+    case "escalated": return { tone: "warn",    label: "Escalated" };
+    default:          return { tone: "info",    label: "Pending review" };
+  }
+}
+
+function shortAddr(a: string) { return `${a.slice(0, 6)}…${a.slice(-4)}`; }
 
 const FEED: { t: string; recip: string; vendor: string; kind: string; tone: PillTone; denied: boolean }[] = [
   { t: "14:47", recip: "#4287", vendor: "Cocina La Borinqueña", kind: "meal",  tone: "success", denied: false },
@@ -74,6 +76,11 @@ const SETTLEMENTS = [
 export function App() {
   const [settling, setSettling] = useState(false);
   const [settlements, setSettlements] = useState(SETTLEMENTS);
+  const [vendors, setVendors] = useState<VendorApplication[]>([]);
+
+  useEffect(() => {
+    api.listVendors().then(({ vendors: v }) => setVendors(v)).catch(console.error);
+  }, []);
 
   async function handleSettle() {
     setSettling(true);
@@ -119,17 +126,22 @@ export function App() {
               </div>
             </div>
             <table className="tbl">
-              <thead><tr><th>Vendor</th><th>Region</th><th>Today</th><th>Status</th><th>Wallet</th></tr></thead>
+              <thead><tr><th>Vendor</th><th>Region</th><th>Status</th><th>Wallet</th></tr></thead>
               <tbody>
-                {VENDORS.map((v, i) => (
-                  <tr key={i}>
-                    <td style={{ fontWeight: 600, color: T.ink }}>{v.n}</td>
-                    <td>{v.r}</td>
-                    <td style={{ color: T.ink, fontWeight: 600 }}>{v.t}</td>
-                    <td><Pill tone={v.s}>{v.sl}</Pill></td>
-                    <td><span className="addr">{v.w}</span></td>
-                  </tr>
-                ))}
+                {vendors.length === 0 ? (
+                  <tr><td colSpan={4} style={{ textAlign: "center", color: T.pebble, padding: "16px" }}>Loading…</td></tr>
+                ) : vendors.map((v) => {
+                  const { tone, label } = vendorPill(v.status);
+                  const wallet = v.status === "approved" ? shortAddr(v.walletAddress) : "—";
+                  return (
+                    <tr key={v.vendorId}>
+                      <td style={{ fontWeight: 600, color: T.ink }}>{v.biz}</td>
+                      <td>{v.region}</td>
+                      <td><Pill tone={tone}>{label}</Pill></td>
+                      <td><span className="addr">{wallet}</span></td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

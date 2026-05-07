@@ -4,6 +4,7 @@ import {
   GetCommand,
   PutCommand,
   QueryCommand,
+  UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 
 const raw = new DynamoDBClient({});
@@ -52,6 +53,26 @@ export async function queryPrefix(
     }),
   );
   return (res.Items ?? []) as Record<string, unknown>[];
+}
+
+export function applicationKey(vendorId: string) {
+  return { PK: "VENDOR_QUEUE", SK: `APPLICATION#${vendorId}` };
+}
+
+export async function updateItem(
+  pk: string,
+  sk: string,
+  expr: string,
+  attrNames: Record<string, string>,
+  attrValues: Record<string, unknown>,
+): Promise<void> {
+  await ddb.send(new UpdateCommand({
+    TableName: TABLE,
+    Key: { PK: pk, SK: sk },
+    UpdateExpression: expr,
+    ExpressionAttributeNames: attrNames,
+    ExpressionAttributeValues: attrValues,
+  }));
 }
 
 export function dailyCapKey(
