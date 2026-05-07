@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { AppBar, Pill } from "@aval/ui";
-import { createAvalClient, type AttestVerifyResult } from "@aval/sdk/api";
+import { createAvalClient, type AttestVerifyResult, type VendorApplication } from "@aval/sdk/api";
 
 const api = createAvalClient(
   import.meta.env.VITE_API_URL ?? "",
@@ -8,7 +8,7 @@ const api = createAvalClient(
 );
 
 // Demo default — judges can override with ?address=0x...
-const DEMO_VENDOR_ADDRESS = "0xFa7C7B4a7D1a95c1D4CeF94e8B6774aFE74a7A58";
+const DEMO_VENDOR_ADDRESS = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
 
 function getVendorAddress(): string {
   const params = new URLSearchParams(window.location.search);
@@ -48,6 +48,18 @@ export function App() {
   const vendorAddress = getVendorAddress();
   const [status, setStatus] = useState<"loading" | "verified" | "unverified" | "error">("loading");
   const [attestation, setAttestation] = useState<AttestVerifyResult["attestation"] | null>(null);
+  const [vendorMeta, setVendorMeta] = useState<Pick<VendorApplication, "name" | "biz"> | null>(null);
+
+  useEffect(() => {
+    api.listVendors()
+      .then(({ vendors }) => {
+        const match = vendors.find(
+          (v) => v.walletAddress.toLowerCase() === vendorAddress.toLowerCase(),
+        );
+        if (match) setVendorMeta({ name: match.name, biz: match.biz });
+      })
+      .catch(() => {});
+  }, [vendorAddress]);
 
   useEffect(() => {
     api.attestVerify({ vendorAddress })
@@ -68,8 +80,8 @@ export function App() {
     <div className="aval-app">
       <AppBar
         appName="Vendor Portal"
-        user="Carlos Méndez"
-        role="Cocina La Borinqueña"
+        user={vendorMeta?.name ?? shortAddr(vendorAddress)}
+        role={vendorMeta?.biz ?? "Vendor"}
         badge={
           status === "loading"  ? <Pill tone="neutral" dot>Checking…</Pill> :
           isVerified            ? <Pill tone="success" dot>Verified vendor</Pill> :
