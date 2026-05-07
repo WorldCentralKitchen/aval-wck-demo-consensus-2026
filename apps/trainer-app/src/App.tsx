@@ -138,7 +138,7 @@ function IssuerWalletModal({
 
   return (
     <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div onClick={e => e.stopPropagation()} style={{ background: "#fff", borderRadius: 12, padding: "24px 28px", width: 420, maxWidth: "90vw", boxShadow: "0 20px 50px rgba(0,0,0,0.18)" }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: "#fff", borderRadius: 12, padding: "24px 28px", width: 520, maxWidth: "90vw", boxShadow: "0 20px 50px rgba(0,0,0,0.18)" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
           <div>
             <div className="eyebrow" style={{ marginBottom: 3 }}>WCK EAS Signing Wallet</div>
@@ -369,6 +369,17 @@ export function App() {
     finally { setConnecting(false); }
   }
 
+  async function disconnectWallet() {
+    try {
+      // Revoke dapp permission so the provider forgets the connection
+      await window.ethereum?.request({
+        method: "wallet_revokePermissions",
+        params: [{ eth_accounts: {} }],
+      });
+    } catch { /* provider may not support wallet_revokePermissions — clear state anyway */ }
+    setWallet(null);
+  }
+
   const credKey    = CREDENTIAL_TYPES[selectedCred]?.key ?? "";
   const credLabel  = CREDENTIAL_TYPES[selectedCred]?.label ?? "";
   const validUntil = Math.floor(new Date(expiresDate).getTime() / 1000);
@@ -435,6 +446,13 @@ export function App() {
                 style={{ background: "none", border: "none", padding: 0, cursor: "pointer", borderRadius: 8, display: "flex", alignItems: "center" }}
               >
                 <ProviderLogo type={wallet.providerType} />
+              </button>
+              <button
+                onClick={disconnectWallet}
+                title="Disconnect wallet"
+                style={{ background: "none", border: `1px solid ${T.border}`, borderRadius: 6, color: T.slate, fontSize: 11.5, fontWeight: 600, padding: "5px 10px", cursor: "pointer", fontFamily: "inherit" }}
+              >
+                Disconnect
               </button>
             </div>
           ) : (
