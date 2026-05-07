@@ -98,15 +98,4 @@ Every disbursement decision has a named human accountable to it. This is the des
 - [ADR-0001: Multi-Layer Credential Architecture](docs/adr/0001-aval-credential-arch-eas-bedrock-hitl-x402.md)
 - [ADR Index](docs/adr/README.md)
 
-## Roadmap
-
-| Phase | Timeline | Milestone |
-|-------|----------|-----------|
-| **A — Hackathon** | Now | Vendor attestations, recipient uniqueness, USDC settlement, agentic onboarding, x402 verification on Base Sepolia |
-| **B — Production hardening** | Months 1–6 | Base mainnet, pilot region, first real `WCK-Skill` credentials, telemetry agent (recommendation-only) |
-| **C — KMS integration** | Months 6–18 | LMS training → automatic credential issuance, WCK Credential Catalog, peer NGO MoUs |
-| **D — Federated ecosystem** | Months 18+ | Sector-wide credential standard, community-led trust layer, multi-agent humanitarian coordination |
-
----
-
 *Built with care by the Aval team at World Central Kitchen.*
