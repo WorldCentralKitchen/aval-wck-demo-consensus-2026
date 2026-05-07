@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { AppBar, Pill } from "@aval/ui";
-import { createAvalClient, type AttestVerifyResult } from "@aval/sdk";
+import { createAvalClient, type AttestVerifyResult } from "@aval/sdk/api";
 
 const api = createAvalClient(
   import.meta.env.VITE_API_URL ?? "",
