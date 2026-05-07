@@ -82,9 +82,18 @@ async function registerOne(name: SchemaName): Promise<RegistrationResult> {
     );
   }
 
-  if (!(await isRegistered(expectedUid))) {
+  // OP Stack public RPCs can lag a few seconds after a write — retry before failing.
+  let confirmed = false;
+  for (let attempt = 0; attempt < 6; attempt++) {
+    if (attempt > 0) await new Promise((res) => setTimeout(res, 2000));
+    if (await isRegistered(expectedUid)) {
+      confirmed = true;
+      break;
+    }
+  }
+  if (!confirmed) {
     throw new Error(
-      `register(${name}) succeeded on-chain but getSchema(${expectedUid}) is empty.`,
+      `register(${name}) succeeded on-chain but getSchema(${expectedUid}) is still empty after retries.`,
     );
   }
 
