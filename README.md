@@ -8,9 +8,11 @@ Built for [EasyA × Consensus Miami 2026](https://easya.io) — Coinbase + AWS t
 
 ## Demo
 
-> **Demo video coming soon** — *add link here before submission*
+**[▶ Watch the 3-minute Aval explainer →](https://main.d1e2lalc8sdp9f.amplifyapp.com)**
 
-> **Approach walkthrough (with captions)** — *add link here before submission*
+An interactive animated walkthrough of the full Aval system — from WCK field enrollment through vendor KYC, EAS attestation, x402 pay-per-verify, and USDC settlement. Use the playback bar or spacebar to pause/scrub.
+
+[![Aval Explainer](docs/screenshots/kyc-console.png)](https://main.d1e2lalc8sdp9f.amplifyapp.com)
 
 ---
 
@@ -22,7 +24,7 @@ All seven interfaces are deployed and running on AWS Amplify. No login required 
 |-----|-----|-------------|
 | **KYC Console** | https://main.d24eib7kys2jha.amplifyapp.com | WCK KYC officer — reviews Bedrock agent packet, clicks Approve to mint EAS attestation |
 | **Ops Dashboard** | https://main.d35bwn340ibboz.amplifyapp.com | WCK Ops Lead — vendor status, live redemption feed, run USDC settlement |
-| **Vendor Portal** | https://main.d36zzg5vvye65d.amplifyapp.com | Vendor (Carlos) — sees attestation, wallet balance, disbursement history |
+| **Vendor Portal** | https://main.d36zzg5vvye65d.amplifyapp.com | Vendor (Hadi Khoury, VND-0037) — sees attestation, wallet balance, disbursement history |
 | **Vendor POS** | https://main.d2y54nuhmkxlb9.amplifyapp.com | Counter staff — face-match recipient at point of service, log redemption |
 | **Field App** | https://main.d1c2jq9d48q43m.amplifyapp.com | WCK field worker — enroll recipient with biometric template (no PII) |
 | **x402 Terminal** | https://main.d1ndlg5b7tv2po.amplifyapp.com | Donor / audit agent — $0.01 USDC per credential lookup via Coinbase x402 |

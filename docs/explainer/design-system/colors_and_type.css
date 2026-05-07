@@ -1,0 +1,268 @@
+/* ============================================================
+   World Central Kitchen — Colors & Typography
+   Source: WCK Brand Guidelines (May 2023)
+   ============================================================ */
+
+/* Barlow — primary typeface for World Central Kitchen.
+   Full family supplied by the brand owner (weights 100–900 + italics). */
+
+@font-face { font-family:'Barlow'; font-style:normal; font-weight:100;
+  src: url('fonts/Barlow-Thin.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family:'Barlow'; font-style:italic; font-weight:100;
+  src: url('fonts/Barlow-ThinItalic.ttf') format('truetype'); font-display: swap; }
+
+@font-face { font-family:'Barlow'; font-style:normal; font-weight:200;
+  src: url('fonts/Barlow-ExtraLight.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family:'Barlow'; font-style:italic; font-weight:200;
+  src: url('fonts/Barlow-ExtraLightItalic.ttf') format('truetype'); font-display: swap; }
+
+@font-face { font-family:'Barlow'; font-style:normal; font-weight:300;
+  src: url('fonts/Barlow-Light.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family:'Barlow'; font-style:italic; font-weight:300;
+  src: url('fonts/Barlow-LightItalic.ttf') format('truetype'); font-display: swap; }
+
+@font-face { font-family:'Barlow'; font-style:normal; font-weight:400;
+  src: url('fonts/Barlow-Regular.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family:'Barlow'; font-style:italic; font-weight:400;
+  src: url('fonts/Barlow-Italic.ttf') format('truetype'); font-display: swap; }
+
+@font-face { font-family:'Barlow'; font-style:normal; font-weight:500;
+  src: url('fonts/Barlow-Medium.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family:'Barlow'; font-style:italic; font-weight:500;
+  src: url('fonts/Barlow-MediumItalic.ttf') format('truetype'); font-display: swap; }
+
+@font-face { font-family:'Barlow'; font-style:normal; font-weight:600;
+  src: url('fonts/Barlow-SemiBold.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family:'Barlow'; font-style:italic; font-weight:600;
+  src: url('fonts/Barlow-SemiBoldItalic.ttf') format('truetype'); font-display: swap; }
+
+@font-face { font-family:'Barlow'; font-style:normal; font-weight:700;
+  src: url('fonts/Barlow-Bold.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family:'Barlow'; font-style:italic; font-weight:700;
+  src: url('fonts/Barlow-BoldItalic.ttf') format('truetype'); font-display: swap; }
+
+@font-face { font-family:'Barlow'; font-style:normal; font-weight:800;
+  src: url('fonts/Barlow-ExtraBold.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family:'Barlow'; font-style:italic; font-weight:800;
+  src: url('fonts/Barlow-ExtraBoldItalic.ttf') format('truetype'); font-display: swap; }
+
+@font-face { font-family:'Barlow'; font-style:normal; font-weight:900;
+  src: url('fonts/Barlow-Black.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family:'Barlow'; font-style:italic; font-weight:900;
+  src: url('fonts/Barlow-BlackItalic.ttf') format('truetype'); font-display: swap; }
+
+:root {
+  /* -------- Brand palette (official) --------
+     The full palette from the brand guidelines. All are hex from
+     the PDF verbatim. */
+  --wck-wild-blueberry: #1565ad; /* PMS 3506 C */
+  --wck-sunny-sky:      #26a9e1; /* PMS 298 C  */
+  --wck-sea-foam:       #d0ecf2; /* PMS 9461 C */
+  --wck-garden-pea:     #8cc540; /* PMS 2285 C */
+  --wck-summer-corn:    #fab818; /* PMS 1235 C */
+  --wck-papaya:         #f68b22; /* PMS 1495 C */
+  --wck-spanish-saffron:#e86027; /* PMS 7579 C */
+  --wck-fresh-fig:      #9e2064; /* PMS 7648 C */
+
+  /* -------- Neutrals --------
+     Neutrals aren't formally defined in the guidelines; derived for
+     product/UI use. Keep them warm-neutral to pair with the vibrant
+     palette. */
+  --wck-ink:        #131313;  /* primary text on light */
+  --wck-graphite:   #3a3a3a;
+  --wck-slate:      #5f6469;
+  --wck-pebble:     #8a8f93;
+  --wck-cloud:      #d7dadd;
+  --wck-paper:      #f4f2ee;  /* warm off-white page bg */
+  --wck-white:      #ffffff;
+  --wck-divider:    rgba(19,19,19,0.08);
+
+  /* -------- Semantic roles --------
+     Primary = Wild Blueberry (the logo wordmark color).
+     Action  = Spanish Saffron (warm CTA, attention). */
+  --wck-primary:          var(--wck-wild-blueberry);
+  --wck-primary-hover:    #0f4f89;
+  --wck-primary-press:    #0a3e6d;
+
+  --wck-accent:           var(--wck-spanish-saffron);
+  --wck-accent-hover:     #d24e1b;
+  --wck-accent-press:     #b34215;
+
+  --wck-success:          var(--wck-garden-pea);
+  --wck-warning:          var(--wck-summer-corn);
+  --wck-danger:           var(--wck-fresh-fig);
+  --wck-info:             var(--wck-sunny-sky);
+
+  /* -------- Foreground / background tokens -------- */
+  --fg-1: var(--wck-ink);
+  --fg-2: var(--wck-graphite);
+  --fg-3: var(--wck-slate);
+  --fg-4: var(--wck-pebble);
+  --fg-inverse: var(--wck-white);
+
+  --bg-1: var(--wck-white);     /* card / surface */
+  --bg-2: var(--wck-paper);     /* page */
+  --bg-3: var(--wck-sea-foam);  /* soft anchor / highlight */
+  --bg-ink: var(--wck-ink);
+  --bg-primary: var(--wck-primary);
+
+  --border: var(--wck-divider);
+  --border-strong: rgba(19,19,19,0.14);
+
+  /* -------- Type system -------- */
+  --font-sans: 'Barlow', 'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'Barlow', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* Weights used across the system */
+  --w-regular:  400;
+  --w-medium:   500;
+  --w-semibold: 600;
+  --w-bold:     700;
+  --w-extra:    800;
+  --w-black:    900;
+
+  /* Type scale — WCK voice is confident & bold; display weights lean 700/800. */
+  --fs-display:  clamp(48px, 6.5vw, 96px);
+  --fs-h1:       clamp(36px, 4.2vw, 56px);
+  --fs-h2:       clamp(28px, 3vw, 40px);
+  --fs-h3:       22px;
+  --fs-callout:  14px; /* all caps */
+  --fs-body:     17px;
+  --fs-body-sm:  15px;
+  --fs-caption:  13px;
+
+  --lh-tight:    1.05;
+  --lh-snug:     1.18;
+  --lh-body:     1.55;
+
+  --tracking-tight:  -0.01em;
+  --tracking-normal: 0;
+  --tracking-caps:   0.08em;
+
+  /* -------- Spacing (8pt base) -------- */
+  --space-0:  0;
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  24px;
+  --space-6:  32px;
+  --space-7:  48px;
+  --space-8:  64px;
+  --space-9:  96px;
+
+  /* -------- Radii -------- */
+  --r-xs:   2px;
+  --r-sm:   4px;
+  --r-md:   6px;
+  --r-lg:   10px;
+  --r-pill: 999px;
+
+  /* -------- Shadows -------- */
+  --shadow-1: 0 1px 2px rgba(19,19,19,0.06), 0 1px 1px rgba(19,19,19,0.04);
+  --shadow-2: 0 2px 6px rgba(19,19,19,0.08), 0 1px 2px rgba(19,19,19,0.05);
+  --shadow-3: 0 10px 24px rgba(19,19,19,0.10), 0 4px 8px rgba(19,19,19,0.06);
+  --shadow-press: inset 0 1px 2px rgba(19,19,19,0.12);
+
+  /* -------- Motion -------- */
+  --ease-out:  cubic-bezier(.2,.7,.2,1);
+  --ease-in:   cubic-bezier(.5,0,.75,.1);
+  --ease-std:  cubic-bezier(.4,0,.2,1);
+  --dur-fast:  120ms;
+  --dur-base:  200ms;
+  --dur-slow:  360ms;
+}
+
+/* ------------------------------------------------------------
+   Semantic element styles (opt-in via the wck-type scope)
+   ------------------------------------------------------------ */
+
+.wck-type,
+.wck-type * {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.wck-type .display,
+.wck-type h1.display {
+  font-family: var(--font-display);
+  font-weight: var(--w-extra);
+  font-size: var(--fs-display);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--fg-1);
+  text-wrap: balance;
+}
+
+.wck-type h1 {
+  font-family: var(--font-display);
+  font-weight: var(--w-bold);
+  font-size: var(--fs-h1);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--tracking-tight);
+  color: var(--fg-1);
+  text-wrap: balance;
+  margin: 0 0 var(--space-4);
+}
+
+.wck-type h2 {
+  font-family: var(--font-display);
+  font-weight: var(--w-bold);
+  font-size: var(--fs-h2);
+  line-height: var(--lh-snug);
+  color: var(--fg-1);
+  text-wrap: balance;
+  margin: 0 0 var(--space-3);
+}
+
+.wck-type h3 {
+  font-weight: var(--w-semibold);
+  font-size: var(--fs-h3);
+  line-height: 1.3;
+  color: var(--fg-1);
+  margin: 0 0 var(--space-2);
+}
+
+.wck-type .callout,
+.wck-type .eyebrow {
+  font-weight: var(--w-bold);
+  font-size: var(--fs-callout);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  color: var(--wck-primary);
+}
+
+.wck-type p {
+  font-weight: var(--w-regular);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--fg-2);
+  text-wrap: pretty;
+  margin: 0 0 var(--space-4);
+}
+
+.wck-type small,
+.wck-type .caption {
+  font-size: var(--fs-caption);
+  color: var(--fg-3);
+  line-height: 1.4;
+}
+
+.wck-type a {
+  color: var(--wck-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1.5px;
+}
+.wck-type a:hover { color: var(--wck-primary-hover); }
+
+.wck-type code,
+.wck-type kbd {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  background: rgba(19,19,19,0.06);
+  padding: 1px 6px;
+  border-radius: var(--r-sm);
+}
